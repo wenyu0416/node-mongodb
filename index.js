@@ -4,34 +4,30 @@ const operation = require('./operation');
 
 const url = 'mongodb://localhost:27017/';
 const dbname = 'conFusion';
-MongoClient.connect(url, (err, client) => {
+MongoClient.connect(url).then((client) => {
     const db = client.db(dbname);
-    operation.insertDocument(db, { "name": "wellry2" }, 'dishes', (result) => {
-        console.log("insertDocument1 result = " + JSON.stringify(result));
-    });
-
-    // operation.insertDocument(db, { "name": "wellry2", desc: 'this is a cloned member' }, 'dishes', (result) => {
-    //     console.log("insertDocument2 result = " + JSON.stringify(result));
-    // });
-
-    operation.findDocument(db, 'dishes', (result) => {
-        console.log('findDocument result = ' + JSON.stringify(result));
-    });
-
-    operation.removeDocument(db, { "name": "wellry3" }, 'dishes', (result) => {
-        console.log('removeDocument result = ' + JSON.stringify(result));
-    })
-
-    operation.updateDocument(db, { name: 'wellry2' }, { description: 'Update test' }, 'dishes', (result) => {
-        console.log('updated result = ' + JSON.stringify(result));
-    })
-
-    operation.findDocument(db, 'dishes', (result) => {
-        console.log('findDocument result = ' + JSON.stringify(result));
-        db.dropCollection('dishes', (result) => {
-            console.log('Dropped Collection: ', JSON.stringify(result));
+    operation.insertDocument(db, { "name": "wellry2" }, 'dishes')
+        .then((result) => {
+            console.log('insertDocument1 result = ' + JSON.stringify(result));
+            return operation.insertDocument(db, { "name": "wellry2", description: 'this is a cloned member!' }, 'dishes');
+        }).then((result) => {
+            console.log('insertDocument2 result =' + JSON.stringify(result));
+            return operation.findDocument(db, 'dishes');
+        }).then((result) => {
+            console.log('findDocument result = ' + JSON.stringify(result));
+            return operation.removeDocument(db, { "name": "wellry3" }, 'dishes');
+        }).then((result) => {
+            console.log('removeDocument result = ' + JSON.stringify(result));
+            return operation.updateDocument(db, { name: 'wellry2' }, { description: 'Update test' }, 'dishes');
+        }).then((result) => {
+            console.log('updated result = ' + JSON.stringify(result));
+            return operation.findDocument(db, 'dishes');
+        }).then((result) => {
+            console.log('findDocument result = ' + JSON.stringify(result));
+            db.dropCollection('dishes', (result) => {
+                console.log('Dropped Collection: ', JSON.stringify(result));
+            })
         })
-    })
 });
 
 
